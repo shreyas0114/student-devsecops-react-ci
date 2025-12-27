@@ -1,11 +1,13 @@
-name: React CI Pipeline
+name: React DevSecOps CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-security:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,12 +17,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: 20
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build app
-        run: npm run build
+      - name: Security audit
+        run: npm audit --audit-level=high
 
+      - name: Run tests
+        run: npm test -- --watch=false
+
+      - name: Build project
+        run: npm run build
